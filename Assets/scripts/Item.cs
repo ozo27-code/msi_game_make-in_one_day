@@ -25,7 +25,6 @@ public class Item : MonoBehaviour
 
         sr.enabled = true;
         sr.color = Color.white;
-        sr.sortingOrder = 10; // فوق الخلفية
 
         // حجم ثابت وواضح مهما كان حجم الصورة
         float h = sr.sprite.bounds.size.y;
@@ -45,6 +44,7 @@ public class Item : MonoBehaviour
         if (abilities == null) return;
 
         abilities.Collect(type);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayPickup();
         Destroy(gameObject);
     }
 }

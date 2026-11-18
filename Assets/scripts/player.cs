@@ -64,6 +64,7 @@ public class Player : MonoBehaviour
         if (abilities != null && abilities.TryAbsorbHit())
         {
             Debug.Log("Laptop absorbed the hit!");
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayHit();
             return;
         }
 
@@ -73,9 +74,21 @@ public class Player : MonoBehaviour
         // تحديث القلوب (قلب بيختفي مع كل ضربة)
         if (heartsUI != null) heartsUI.UpdateHearts(currentHealth);
 
+        // صوت الضربة
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayHit();
+
         // إذا نفدت الأرواح بالكامل
         if (currentHealth <= 0)
         {
+            // لو اللابتوب شغال: القلوب كلها ترجع واللاعب يكمل
+            if (abilities != null && abilities.TryRevive())
+            {
+                currentHealth = maxHealth;
+                if (heartsUI != null) heartsUI.UpdateHearts(currentHealth);
+                Debug.Log("Laptop revived the player!");
+                return;
+            }
+
             Die();
         }
     }
@@ -92,6 +105,9 @@ public class Player : MonoBehaviour
     void Die()
     {
         Debug.Log("Player Died!");
+
+        // صوت الخسارة
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameOver();
 
         // تفعيل شاشة Game Over فوراً
         GameOver gameOverScript = FindObjectOfType<GameOver>();

@@ -19,7 +19,7 @@ public class PlayerAbilities : MonoBehaviour
     public float waveSize = 3f;          // طول الموجة بالـ units
     public float waveSpeed = 12f;
     public float waveLifetime = 1.5f;
-    public float waveStartOffsetX = 1f;  // بتبدأ قدام اللاعب بكام
+    public float waveStartOffsetX = 3f;  // بتبدأ قدام اللاعب بكام
 
     [Header("Keyboard (كيبورد): ينزل نيازك")]
     public Sprite meteorSprite;          // nezk 2
@@ -28,14 +28,18 @@ public class PlayerAbilities : MonoBehaviour
     public float meteorInterval = 0.4f;  // الوقت بين كل نيزك والتاني
     public float meteorFallSpeed = 12f;
 
-    // الأيتمز اللي مع اللاعب دلوقتي (كل أيتم استخدام واحد)
-    public bool HasLaptop { get; private set; }
-    public bool HasHeadphones { get; private set; }
-    public bool HasKeyboard { get; private set; }
+    [Header("Inventory (المخزون)")]
+    public int maxStack = 3;             // أقصى عدد تشيله من كل أيتم
+
+    // عدد الأيتمز اللي مع اللاعب دلوقتي (كل استخدام بينقص واحد)
+    public int LaptopCount { get; private set; }
+    public int HeadphonesCount { get; private set; }
+    public int KeyboardCount { get; private set; }
 
     // حالة اللابتوب
     public bool LaptopActive { get; private set; }
     private int shieldHitsLeft;
+    public int ShieldHitsLeft { get { return shieldHitsLeft; } }
 
     private Player player;
 
@@ -48,34 +52,38 @@ public class PlayerAbilities : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current[laptopKey].wasPressedThisFrame && HasLaptop && !LaptopActive)
+        if (Keyboard.current[laptopKey].wasPressedThisFrame && LaptopCount > 0 && !LaptopActive)
         {
-            HasLaptop = false;
+            LaptopCount--;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayLaptop();
             StartCoroutine(LaptopRoutine());
         }
 
-        if (Keyboard.current[headphonesKey].wasPressedThisFrame && HasHeadphones)
+        if (Keyboard.current[headphonesKey].wasPressedThisFrame && HeadphonesCount > 0)
         {
-            HasHeadphones = false;
+            HeadphonesCount--;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayWave();
             FireWave();
         }
 
-        if (Keyboard.current[keyboardKey].wasPressedThisFrame && HasKeyboard)
+        if (Keyboard.current[keyboardKey].wasPressedThisFrame && KeyboardCount > 0)
         {
-            HasKeyboard = false;
+            KeyboardCount--;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayMeteor();
             StartCoroutine(MeteorRoutine());
         }
     }
 
     // ===== الأيتمز =====
 
-    public bool Has(ItemType type)
+    // true لو اللاعب شايل أقصى عدد من الأيتم ده (السبونر مش بيطلّعه تاني)
+    public bool IsFull(ItemType type)
     {
         switch (type)
         {
-            case ItemType.Laptop: return HasLaptop || LaptopActive;
-            case ItemType.Headphones: return HasHeadphones;
-            default: return HasKeyboard;
+            case ItemType.Laptop: return LaptopCount >= maxStack;
+            case ItemType.Headphones: return HeadphonesCount >= maxStack;
+            default: return KeyboardCount >= maxStack;
         }
     }
 
@@ -83,9 +91,9 @@ public class PlayerAbilities : MonoBehaviour
     {
         switch (type)
         {
-            case ItemType.Laptop: HasLaptop = true; break;
-            case ItemType.Headphones: HasHeadphones = true; break;
-            case ItemType.Keyboard: HasKeyboard = true; break;
+            case ItemType.Laptop: LaptopCount = Mathf.Min(LaptopCount + 1, maxStack); break;
+            case ItemType.Headphones: HeadphonesCount = Mathf.Min(HeadphonesCount + 1, maxStack); break;
+            case ItemType.Keyboard: KeyboardCount = Mathf.Min(KeyboardCount + 1, maxStack); break;
         }
         Debug.Log("Collected: " + type);
     }
@@ -135,6 +143,19 @@ public class PlayerAbilities : MonoBehaviour
         }
     }
 
+    // بيخلي الحاجات اللي بتتبني بالكود تستخدم نفس خامة وLayer اللاعب عشان تظهر صح
+    void ApplyPlayerLook(GameObject obj)
+    {
+        SpriteRenderer playerSr = GetComponentInChildren<SpriteRenderer>();
+        SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+        if (playerSr == null || sr == null) return;
+
+        sr.sharedMaterial = playerSr.sharedMaterial;
+        sr.sortingLayerID = playerSr.sortingLayerID;
+        sr.sortingOrder = playerSr.sortingOrder + 5;
+        obj.layer = gameObject.layer;
+    }
+
     // ===== السماعة =====
 
     void FireWave()
@@ -142,8 +163,13 @@ public class PlayerAbilities : MonoBehaviour
         GameObject waveObj = new GameObject("Wave");
         waveObj.transform.position = transform.position + Vector3.right * waveStartOffsetX;
 
+        // مكان البداية بالنسبة للكاميرا (عشان الموجة متروحش لورا)
+        Camera cam = Camera.main;
+        float startRelX = cam != null ? waveObj.transform.position.x - cam.transform.position.x : 0f;
+
         AbilityWave wave = waveObj.AddComponent<AbilityWave>();
-        wave.Init(waveSprite, waveSize, waveSpeed, waveLifetime);
+        wave.Init(waveSprite, waveSize, waveSpeed, waveLifetime, startRelX);
+        ApplyPlayerLook(waveObj);
     }
 
     // ===== الكيبورد =====
@@ -170,7 +196,8 @@ public class PlayerAbilities : MonoBehaviour
             meteorObj.transform.position = new Vector3(x, y, 0f);
 
             AbilityMeteor meteor = meteorObj.AddComponent<AbilityMeteor>();
-            meteor.Init(meteorSprite, meteorSize, meteorFallSpeed);
+            meteor.Init(meteorSprite, meteorSize, meteorFallSpeed, x - cam.transform.position.x);
+            ApplyPlayerLook(meteorObj);
 
             yield return new WaitForSeconds(meteorInterval);
         }

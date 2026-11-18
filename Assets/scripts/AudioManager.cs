@@ -12,6 +12,13 @@ public class AudioManager : MonoBehaviour
     public AudioClip hitSound;
     public AudioClip coinSound;
     public AudioClip gameOverSound;
+
+    [Header("Items & Abilities (أصوات الأيتمز والقدرات)")]
+    public AudioClip pickupSound;   // لما اللاعب ياخد أيتم
+    public AudioClip laptopSound;   // لما يشغّل اللابتوب (Q)
+    public AudioClip waveSound;     // لما يطلّع موجة السماعة (E)
+    public AudioClip meteorSound;   // لما يشغّل الكيبورد (R)
+
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
     private AudioSource musicSource;
@@ -42,6 +49,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayHit() { Play(hitSound); }
     public void PlayCoin() { Play(coinSound); }
+    public void PlayPickup() { Play(pickupSound); }
+    public void PlayLaptop() { Play(laptopSound); }
+    public void PlayWave() { Play(waveSound); }
+    public void PlayMeteor() { Play(meteorSound); }
 
     public void PlayGameOver()
     {
