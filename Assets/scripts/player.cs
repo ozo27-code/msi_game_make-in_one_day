@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem; // إذا كنت تستخدم نظام الإدخال الجديد، أو يمكنك حذفه لو تستخدم النظام القديم
+using UnityEngine.InputSystem; // مكتبة نظام الإدخال الجديد
 
 public class Player : MonoBehaviour
 {
@@ -18,24 +18,37 @@ public class Player : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        currentHealth = maxHealth; // تعيين الهيلث بالحد الأقصى عند بداية اللعبة
+        currentHealth = maxHealth;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // قراءة الحركة (طريقة الإدخال القديمة أو الجديدة حسب إعدادات مشروعك)
-        float directionY = Input.GetAxisRaw("Vertical");
+        // التأكد من أن لوحة المفاتيح متصلة لتجنب أي أخطاء
+        if (Keyboard.current == null) return;
+
+        float directionY = 0f;
+
+        // قراءة أزرار الحركة عبر الـ New Input System (W, S أو السهم العلوي والسفلي)
+        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+        {
+            directionY = 1f;
+        }
+        else if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+        {
+            directionY = -1f;
+        }
+
         playerDirection = new Vector2(0, directionY).normalized;
     }
 
     void FixedUpdate()
     {
-        // تطبيق الحركة على اللاعب
+        // تطبيق الحركة على الـ Rigidbody2D
         rb.linearVelocity = new Vector2(0, playerDirection.y * playerSpeed);
     }
 
-    // دالة لاستقبال الضرر وتحديد الموت بعد ضربتين
+    // دالة استقبال الضرر عند الاصطدام بالنيزك
     public void TakeDamage(int damageAmount)
     {
         currentHealth -= damageAmount;
@@ -52,9 +65,14 @@ public class Player : MonoBehaviour
     {
         Debug.Log("Player Died!");
 
-        // تدمير اللاعب عند الموت
-        Destroy(gameObject);
+        // تفعيل شاشة Game Over فوراً
+        GameOver gameOverScript = FindObjectOfType<GameOver>();
+        if (gameOverScript != null)
+        {
+            gameOverScript.TriggerGameOver();
+        }
 
-        // يمكنك هنا لاحقاً استدعاء شاشة Game Over أو إعادة تحميل اللعبة
+        // تدمير اللاعب
+        Destroy(gameObject);
     }
 }
