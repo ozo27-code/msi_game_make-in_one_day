@@ -17,10 +17,13 @@ public class Player : MonoBehaviour
     [Header("UI")]
     public HeartsUI heartsUI; // اسحب الـ HeartsPanel هنا
 
+    private PlayerAbilities abilities;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        abilities = GetComponent<PlayerAbilities>();
         currentHealth = maxHealth;
 
         // إظهار القلوب في البداية
@@ -57,6 +60,13 @@ public class Player : MonoBehaviour
     // دالة استقبال الضرر عند الاصطدام بالنيزك
     public void TakeDamage(int damageAmount)
     {
+        // لو اللابتوب شغال وفيه ضربات لسه يستحملها: الضربة تتلغي
+        if (abilities != null && abilities.TryAbsorbHit())
+        {
+            Debug.Log("Laptop absorbed the hit!");
+            return;
+        }
+
         currentHealth -= damageAmount;
         Debug.Log("Player Health remaining: " + currentHealth);
 
@@ -68,6 +78,15 @@ public class Player : MonoBehaviour
         {
             Die();
         }
+    }
+
+    // تجديد الصحة (بيستخدمها اللابتوب)
+    public void Heal(int amount)
+    {
+        if (currentHealth <= 0) return;
+
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        if (heartsUI != null) heartsUI.UpdateHearts(currentHealth);
     }
 
     void Die()

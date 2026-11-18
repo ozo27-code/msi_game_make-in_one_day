@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class Coin : MonoBehaviour
@@ -11,6 +10,8 @@ public class Coin : MonoBehaviour
             {
                 CoinManager.Instance.AddCoins(1);
             }
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayCoin();
 
             Destroy(gameObject);
         }
