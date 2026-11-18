@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8a7f8c4e91a3d7744bb9ca55ac0755d7
+guid: 1ca4f7e84243fa244856039ed503818a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6112547604023762754
-    second: Gemini_Generated_Image_vxuge3vxuge3vxug-Photoroom-Picsart-AiImageEnhancer_0
+      213: -7831963058260382007
+    second: gameover2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Gemini_Generated_Image_vxuge3vxuge3vxug-Photoroom-Picsart-AiImageEnhancer_0
+      name: gameover2_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 3168
-        height: 1344
+        width: 1376
+        height: 768
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb0af7df65edb2ba0800000000000000
-      internalID: -6112547604023762754
+      spriteID: 9ce686218174f4390800000000000000
+      internalID: -7831963058260382007
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Gemini_Generated_Image_vxuge3vxuge3vxug-Photoroom-Picsart-AiImageEnhancer_0: -6112547604023762754
+      gameover2_0: -7831963058260382007
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
