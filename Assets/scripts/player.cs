@@ -11,14 +11,20 @@ public class Player : MonoBehaviour
     private Vector2 playerDirection;
 
     [Header("Health Settings")]
-    public int maxHealth = 2; // عدد الضربات المسموح بها (ضربتين)
+    public int maxHealth = 3; // عدد الضربات المسموح بها (3 ضربات)
     private int currentHealth;
+
+    [Header("UI")]
+    public HeartsUI heartsUI; // اسحب الـ HeartsPanel هنا
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
+
+        // إظهار القلوب في البداية
+        if (heartsUI != null) heartsUI.UpdateHearts(currentHealth);
     }
 
     // Update is called once per frame
@@ -54,7 +60,10 @@ public class Player : MonoBehaviour
         currentHealth -= damageAmount;
         Debug.Log("Player Health remaining: " + currentHealth);
 
-        // إذا نفدت الأرواح بالكامل (بعد الخبطة الثانية)
+        // تحديث القلوب (قلب بيختفي مع كل ضربة)
+        if (heartsUI != null) heartsUI.UpdateHearts(currentHealth);
+
+        // إذا نفدت الأرواح بالكامل
         if (currentHealth <= 0)
         {
             Die();

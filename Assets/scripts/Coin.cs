@@ -1,0 +1,18 @@
+
+using UnityEngine;
+
+public class Coin : MonoBehaviour
+{
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            if (CoinManager.Instance != null)
+            {
+                CoinManager.Instance.AddCoins(1);
+            }
+
+            Destroy(gameObject);
+        }
+    }
+}

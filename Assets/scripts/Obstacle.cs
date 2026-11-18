@@ -6,6 +6,8 @@ public class Obstacle : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log("Obstacle touched: " + collision.name + " | Tag: " + collision.tag);
+
         if (collision.tag == "Border")
         {
             Destroy(this.gameObject);
