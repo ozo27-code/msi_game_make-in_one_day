@@ -16,9 +16,9 @@ public class ItemSpawner : MonoBehaviour
     public float itemLifetime = 15f;   // يتمسح لو اللاعب مأخدوش
 
     [Header("Spawn Position")]
-    public float minY = -3f;
-    public float maxY = 3f;
-    public float offsetOutsideScreen = 2f; // بيظهر برا الشاشة يمين بالمسافة دي
+    public float itemSize = 1.5f;          // حجم الأيتم على الشاشة (بالـ units)
+    public float edgeMargin = 1.5f;        // بعد كام عن حافة الشاشة فوق وتحت (عشان دايماً يبان)
+    public float offsetOutsideScreen = 1f; // بيظهر برا الشاشة يمين بالمسافة دي
 
     private float nextSpawnTime;
     private PlayerAbilities player;
@@ -77,7 +77,8 @@ public class ItemSpawner : MonoBehaviour
 
         float halfWidth = cam.orthographicSize * cam.aspect;
         float x = cam.transform.position.x + halfWidth + offsetOutsideScreen;
-        float y = Random.Range(minY, maxY);
+        float halfHeight = cam.orthographicSize;
+        float y = cam.transform.position.y + Random.Range(-(halfHeight - edgeMargin), halfHeight - edgeMargin);
 
         GameObject obj = Instantiate(itemPrefab, new Vector3(x, y, 0f), Quaternion.identity);
 
@@ -86,7 +87,7 @@ public class ItemSpawner : MonoBehaviour
         else if (chosen == ItemType.Keyboard) sprite = keyboardSprite;
 
         Item item = obj.GetComponent<Item>();
-        if (item != null) item.Setup(chosen, sprite);
+        if (item != null) item.Setup(chosen, sprite, itemSize);
         else Debug.LogWarning("ItemSpawner: الـ Prefab مفيهوش سكريبت Item!", this);
 
         Debug.Log("ItemSpawner: ظهر " + chosen + " في المكان " + obj.transform.position);

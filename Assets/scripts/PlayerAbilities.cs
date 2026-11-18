@@ -10,8 +10,7 @@ public class PlayerAbilities : MonoBehaviour
     public Key headphonesKey = Key.E;
     public Key keyboardKey = Key.R;
 
-    [Header("Laptop (لابتوب): يستحمل ضربتين + الصحة بتتجدد")]
-    public float laptopDuration = 10f;   // مدة القدرة
+    [Header("Laptop (لابتوب): يستحمل ضربتين + الصحة بتتجدد + لما تموت القلوب ترجع")]
     public int laptopShieldHits = 2;     // عدد الضربات اللي يستحملها من غير ما يخسر قلب
     public float regenInterval = 3f;     // كل كام ثانية يرجع قلب
 
@@ -104,17 +103,26 @@ public class PlayerAbilities : MonoBehaviour
         return false;
     }
 
+    // بيتنادي من Player لما الصحة توصل صفر: لو اللابتوب شغال يرجّع القلوب (مرة واحدة) واللابتوب يخلص
+    public bool TryRevive()
+    {
+        if (!LaptopActive) return false;
+
+        LaptopActive = false;
+        shieldHitsLeft = 0;
+        return true;
+    }
+
     IEnumerator LaptopRoutine()
     {
         LaptopActive = true;
         shieldHitsLeft = laptopShieldHits;
 
-        float elapsed = 0f;
         float regenTimer = 0f;
 
-        while (elapsed < laptopDuration)
+        // شغال لحد ما اللاعب يموت (TryRevive بتوقفه)
+        while (LaptopActive)
         {
-            elapsed += Time.deltaTime;
             regenTimer += Time.deltaTime;
 
             if (regenTimer >= regenInterval)
@@ -125,9 +133,6 @@ public class PlayerAbilities : MonoBehaviour
 
             yield return null;
         }
-
-        LaptopActive = false;
-        shieldHitsLeft = 0;
     }
 
     // ===== السماعة =====
